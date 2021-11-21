@@ -10,6 +10,7 @@
 using namespace cv;
 
 
+
 void robot(Mat img, Point pos)
 {
   rectangle(img, Point(pos.x+10,pos.y+10), Point( pos.x+70, pos.y+70), Scalar(0,0,255), 4);
