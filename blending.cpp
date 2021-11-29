@@ -20,8 +20,8 @@ Mat blend(Mat img1, Mat img2, double alp)
   int x = 0;
   int y = 0;
   Vec3b& color3 = img1.at<Vec3b>(x,y);
-  imshow("img1", img1);
-  imshow("img2", img2);
+  // imshow("img1", img1);
+  // imshow("img2", img2);
   for (int y = 0; y < img1.rows; y++)
   {
     for (int x = 0; x < img1.cols; x++)
