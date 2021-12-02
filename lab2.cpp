@@ -12,6 +12,13 @@
 
 int disparity = 100;
 
+
+void unsharpMask(cv::Mat& original, cv::Mat& blurred, cv::Mat& output, double k = 1)
+{
+	output = original - blurred;
+	output = k * output + original;
+}
+
 int subsctract(cv::Mat& img1, cv::Mat& img2, cv::Mat& result)
 {
 	double sumDiff = 0;
@@ -73,7 +80,7 @@ void box_blur(cv::Mat plane)
 }
 
 
-void gaussFilter(cv::Mat& image, double sigma, int kernelSize)
+void gauss_filter(cv::Mat& image, double sigma, int kernelSize)
 {
 	cv::Mat kernel(kernelSize, kernelSize, CV_32FC1);
 	int kernelOffset = (kernelSize - 1) / 2;
@@ -85,26 +92,98 @@ void gaussFilter(cv::Mat& image, double sigma, int kernelSize)
 			kernel.at<float>(v + (kernelSize - 1) / 2, u + (kernelSize - 1) / 2) = pow(M_E, -(v * v + u * u) / (2*sigma));
 		}
 	}
-	kernel /= cv::sum(kernel);			// normalization
+  cv::Scalar kernel_sum = cv::sum(kernel);
+	kernel = kernel / kernel_sum[0];			// normalization
 
  	cv::filter2D(image, image, -1, kernel, cv::Point(kernelOffset, kernelOffset));
 
 }
 
+void logTransform(cv::Mat& img, double c)
+{
+	
+	cv::MatIterator_<uint8_t> it, end;
+	for (it = img.begin<uint8_t>(), end = img.end<uint8_t>(); it != end; ++it)
+	{
+		*it = (uint8_t)(c * log(*it + 1));
+	}
+}
+
 void gauss(cv::Mat plane)
 {
-  gauss_copy = plane.clo
-  gaussFilter(plane, 1, 3);
+  cv::Mat diff(plane.rows, plane.cols, plane.type());
+	
+  cv::Mat gauss_copy = plane.clone();
+  cv::Mat box_copy = plane.clone();
+  cv::Mat gaussblur_copy = plane.clone();
+  box_filter(box_copy, 3);
+  gauss_filter(gauss_copy, 1, 3);
+  cv::GaussianBlur(gaussblur_copy, gaussblur_copy, cv::Size(3, 3), 0.8);
+  disparity = subsctract(plane, gauss_copy, diff);
+  std::cout << "Image  similarity: " << 100 - disparity << "%" << std::endl;
+  if (disparity < 5) logTransform(diff, 30);
+  cv::imshow("gauss_copy", gauss_copy);
+  cv::imshow("gaussblur_copy", gaussblur_copy);
+  cv::imshow("box_copy", box_copy);
+  cv::imshow("diff", diff);
+  cv::imshow("orig", plane);
+}
+
+
+void unsharp(cv::Mat plane)
+{
+  cv::Mat diff(plane.rows, plane.cols, plane.type());
+  cv::Mat gauss_copy = plane.clone();
+  cv::Mat box_copy = plane.clone();
+  cv::Mat unsharped(plane.rows, plane.cols, plane.type());
+	cv::Mat unsharped2(plane.rows, plane.cols, plane.type());
+	
+  gauss_filter(gauss_copy, 1.4, 7);
+  unsharpMask(plane, gauss_copy, unsharped, 2);
+  box_filter(box_copy, 7);
+  unsharpMask(plane, box_copy, unsharped2, 2);
+  disparity = subsctract(unsharped, unsharped2, diff);
+  std::cout << "Image  similarity: " << 100 - disparity << "%" << std::endl;
+  cv::imshow("unsharped", unsharped);
+  cv::imshow("unsharped2", unsharped2);
+  cv::imshow("diff", diff);
+  cv::imshow("plane", plane);
+
+}
+
+void laplase_filter(cv::Mat plane)
+{
+  float kernelArray[] = {0.0, 1.0, 0.0, 1.0, -4.0, 1.0, 0.0, 1.0, 0.0};
+	
+	cv::Mat kernel(3, 3, CV_32FC1, kernelArray);
+
+	cv::filter2D(plane, plane, -1, kernel, cv::Point(-1, -1));
+}
+
+
+void laplase(cv::Mat plane)
+{
+  cv::Mat laplase_copy = plane.clone();
+  cv::Mat unsharped3 = plane.clone();
+  laplase_filter(laplase_copy);
+  unsharped3 = unsharped3 - 1 * laplase_copy;
+  cv::imshow("laplase_copy", laplase_copy);
+  cv::imshow("plane", plane);
+  cv::imshow("unsharped3", unsharped3);
+  
+  
 }
 
 int main( int argc, char** argv ) 
 {
   
   cv::Mat plane;
-  plane = imread("/home/pesta/opencv_labs/images/Lenna.png" ,cv::IMREAD_GRAYSCALE);
+  plane = imread("/home/pestov/opencv_labs/images/Lenna.png" ,cv::IMREAD_GRAYSCALE);
   cv::resize(plane, plane, cv::Size(500, 500));
   // box_blur(plane);
-  gauss(plane);
+  // gauss(plane);
+  unsharp(plane);
+  laplase(plane);
   cv::waitKey(0);
   cv::destroyAllWindows();
   return 0;
