@@ -44,8 +44,8 @@ int main( int argc, char** argv )
 {
   
   
-  Mat image1 = imread("/home/pesta/opencv_labs/plane.jpeg");
-  Mat image2 = imread("/home/pesta/opencv_labs/robot_3.png");
+  Mat image1 = imread("/home/pesta/opencv_labs/images/plane.jpeg");
+  Mat image2 = imread("/home/pesta/opencv_labs/images/robot_3.png");
   
   
   Mat out = blend(image1, image2, 0.5);

@@ -140,7 +140,7 @@ int main() {
 
 	case 4:
 		boxFilter(bfCopy, 7);
-		//gaussFilter(blurCopy, 1, 3);
+		gaussFilter(blurCopy, 1, 3);
 		cv::GaussianBlur(blurCopy, blurCopy, cv::Size(3, 3), 0.8);
 		disparity = subsctract(original, blurCopy, diff);
 		std::cout << "Image  similarity: " << 100 - disparity << "%" << std::endl;

@@ -24,7 +24,7 @@ int main( int argc, char** argv )
 {
   
   Mat plane;
-  plane = imread("/home/pesta/opencv_labs/plane.jpeg" ,cv::IMREAD_COLOR);
+  plane = imread("/home/pesta/opencv_labs/images/plane.jpeg" ,cv::IMREAD_COLOR);
   
   if(! plane.data ) {
     std::cout <<  "Image plane not found or unable to open" << std::endl ;

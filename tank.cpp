@@ -104,9 +104,9 @@ Mat3b draw_bullet(Mat3b bkg, Mat4b bullet_img, Point pos, int turn, int is_new)
 
 int main( int argc, char** argv ) 
 {
-  Mat3b bkg = imread("/home/pesta/opencv_labs/plane.jpeg");
-  Mat4b fgd = imread("/home/pesta/opencv_labs/tank3.png", IMREAD_UNCHANGED);
-  Mat4b bullet_img = imread("/home/pesta/opencv_labs/bullet.png", IMREAD_UNCHANGED);
+  Mat3b bkg = imread("/home/pesta/opencv_labs/images/plane.jpeg");
+  Mat4b fgd = imread("/home/pesta/opencv_labs/images/tank3.png", IMREAD_UNCHANGED);
+  Mat4b bullet_img = imread("/home/pesta/opencv_labs/images/bullet.png", IMREAD_UNCHANGED);
   
   cv::rotate(bullet_img, bullet_img, cv::ROTATE_90_COUNTERCLOCKWISE);
   resize(bullet_img, bullet_img, Size(40, 40), INTER_LINEAR);
