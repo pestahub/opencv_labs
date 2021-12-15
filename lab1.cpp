@@ -6,7 +6,6 @@
 #include <opencv2/imgcodecs.hpp> 
 
 #include <iostream>
-
 using namespace cv;
 
 
