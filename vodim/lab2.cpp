@@ -55,7 +55,7 @@ void box_filter(cv::Mat& image, int boxSize)
   }
 }
 
-void box_blur(cv::Mat plane)
+void task1_3(cv::Mat plane)
 {
   cv::TickMeter tm; 
   cv::Mat diff(plane.rows, plane.cols, plane.type());
@@ -109,7 +109,7 @@ void logTransform(cv::Mat& img, double c)
 	}
 }
 
-void gauss(cv::Mat plane)
+void task4(cv::Mat plane)
 {
   cv::Mat diff(plane.rows, plane.cols, plane.type());
 	
@@ -130,7 +130,7 @@ void gauss(cv::Mat plane)
 }
 
 
-void unsharp(cv::Mat plane)
+void task5(cv::Mat plane)
 {
   cv::Mat diff(plane.rows, plane.cols, plane.type());
   cv::Mat gauss_copy = plane.clone();
@@ -161,7 +161,7 @@ void laplase_filter(cv::Mat plane)
 }
 
 
-void laplase(cv::Mat plane)
+void task6_7(cv::Mat plane)
 {
   cv::Mat laplase_copy = plane.clone();
   cv::Mat unsharped3 = plane.clone();
@@ -180,10 +180,10 @@ int main( int argc, char** argv )
   cv::Mat plane;
   plane = imread("/home/pesta/opencv_labs/images/Lenna.png" ,cv::IMREAD_GRAYSCALE);
   cv::resize(plane, plane, cv::Size(500, 500));
-  // box_blur(plane);
-  // gauss(plane);
-  unsharp(plane);
-  // laplase(plane);
+  // task1_3(plane);
+  // task4(plane);
+  task5(plane);
+  // task6_7(plane);
   cv::waitKey(0);
   cv::destroyAllWindows();
   return 0;
