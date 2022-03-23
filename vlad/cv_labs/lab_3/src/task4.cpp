@@ -31,7 +31,7 @@ int main(int argc, char** argv){
     {
         if (contourArea(cnts[i])>1000000)
             continue;
-        double diff = matchShapes(cnts[i], cnts_template[0], CONTOURS_MATCH_I2, 0);
+        double diff = matchShapes(cnts[i], cnts_template[0], CV_CONTOURS_MATCH_I2, 0);
         if (diff < 1){
             drawContours(wrench_draw, cnts, i, Scalar(0, 255, 0), 5);  
         }
