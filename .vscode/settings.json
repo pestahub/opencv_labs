@@ -55,6 +55,11 @@
     "random": "cpp",
     "set": "cpp",
     "string": "cpp",
-    "string_view": "cpp"
+    "string_view": "cpp",
+    "any": "cpp",
+    "condition_variable": "cpp",
+    "list": "cpp",
+    "mutex": "cpp",
+    "drawable": "cpp"
   }
 }

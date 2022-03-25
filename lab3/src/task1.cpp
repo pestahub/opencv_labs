@@ -1,46 +1,44 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <vector>
-using namespace cv;
-using namespace std;
 
-int th = 0;
-Mat img, thimg;
-void proc_img(int,void* user_data){
-	int* th_type = (int*)user_data;
-	threshold(img, thimg, th, 255, *th_type);
-	imshow("thimg", thimg);
-	vector<vector<Point>> cnts;
-	findContours(thimg, cnts, RETR_LIST, CHAIN_APPROX_NONE);
-	Mat draw = Mat::zeros(thimg.size(), CV_8UC3);
+cv::Mat image, threshold_image;
+
+void detect_goal(int threshold_level){
+	threshold(image, threshold_image, threshold_level, 255, cv::THRESH_BINARY);
+	imshow("threshold_image", threshold_image);
+	std::vector<std::vector<cv::Point>> conturs;
+	findContours(threshold_image, conturs, cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
+	cv::Mat goal_image;
+	cv::cvtColor(image,goal_image, cv::COLOR_GRAY2RGB);
 	int maxAreaInd = 0;
 	double maxArea = 0;
-	for (size_t i = 0; i < cnts.size(); i++)
+	for (size_t i = 0; i < conturs.size(); i++)
 	{
-		double area = contourArea(cnts[i]);
+		double area = contourArea(conturs[i]);
 		if (area > maxArea){
 			maxArea = area;
 			maxAreaInd = i;
 		}
 	}
-	Moments mnts = moments(cnts[maxAreaInd]);
-	int centerX = mnts.m10 / mnts.m00;
-	int centerY = mnts.m01 / mnts.m00;
-	circle(draw, Point(centerX, centerY), 5, Scalar(255, 0, 0));
-	drawContours(draw, cnts, maxAreaInd, Scalar(0, 0, 255));
-	imshow("cntimg", draw);
+	if (conturs.size() == 0) return;
+	cv::Moments mnts = moments(conturs[maxAreaInd]);
+	int x = mnts.m10 / mnts.m00;
+	int y = mnts.m01 / mnts.m00;
+	circle(goal_image, cv::Point(x, y), 5, cv::Scalar(255, 0, 0), 3);
+	imshow("goal_image", goal_image);
 }
 
 int main(int argc, char** argv){
-	string fn;
-	if (argc>1) fn= argv[1];
-	else fn = "../img_zadan/roboti/roi_robotov.jpg";
-	img = imread(fn,0);
-	imshow(fn, img);
+	std::string image_file;
+	if (argc>1) image_file= argv[1];
+	else image_file = "../images/lab3/allababah/ig_2.jpg";
+	image = cv::imread(image_file,0);
+	imshow("origin", image);
+	int treshold_value = 220;
+	while (cv::waitKey(5) != 'q'){
+		detect_goal(treshold_value);
+		cv::createTrackbar("threshold", "threshold_image", &treshold_value, 255);
+	}
 
-	int th_type = THRESH_BINARY;
-
-	proc_img(0,&th_type);
-	createTrackbar("th", "thimg", &th, 255, proc_img, &th_type);
-	waitKey();
 }
