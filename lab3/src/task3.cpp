@@ -13,10 +13,10 @@ int high_H = max_value_H, high_S = max_value, high_V = max_value, minArea=0;
 Mat dilated_all;
 
 void find_robots(Mat &src, vector<vector<Point>> &contours, Scalar &range_min, Scalar &range_max, int minArea=0){
-    Mat thimg;
-    inRange(src, range_min, range_max, thimg);
+    Mat thres_image;
+    inRange(src, range_min, range_max, thres_image);
     Mat opened, closed, dilated;
-    morphologyEx(thimg, closed, MORPH_CLOSE, getStructuringElement(MORPH_RECT, Size(15, 15)));
+    morphologyEx(thres_image, closed, MORPH_CLOSE, getStructuringElement(MORPH_RECT, Size(15, 15)));
     morphologyEx(closed, opened, MORPH_OPEN, getStructuringElement(MORPH_RECT, Size(10, 10)));
     add(dilated_all,opened, dilated_all);
     imshow("dilated", dilated_all);
@@ -31,37 +31,35 @@ void find_robots(Mat &src, vector<vector<Point>> &contours, Scalar &range_min, S
 }
 
 int main(int argc, char** argv){
-	namedWindow("thimg");
-	string fn;
-	Mat img, thimg;
-	if (argc>1) fn= argv[1];
-	else fn = "../images/lab3/roboti/roi_robotov.jpg";
-	img = imread(fn);
-	imshow(fn, img);
+	namedWindow("thres_image");
+	string image_file;
+	Mat image, thres_image;
+	if (argc>1) image_file= argv[1];
+	else image_file = "../images/lab3/roboti/roi_robotov.jpg";
+	image = imread(image_file);
+	imshow("image", image);
     Mat bgrImg, hsvImg, gray, imgLamp;
-    imgLamp = img.clone();
-
+    imgLamp = image.clone();
+    gray = imread("image", 0);
     
-    gray = imread(fn, 0);
-    
-    threshold(gray, thimg, 247, 255, THRESH_BINARY);
-    imshow("thimg", thimg);
+    threshold(gray, thres_image, 247, 255, THRESH_BINARY);
+    imshow("thres_image", thres_image);
 
     vector<vector<Point>> cnts;
-    findContours(thimg, cnts, RETR_LIST, CHAIN_APPROX_NONE);
+    findContours(thres_image, cnts, RETR_LIST, CHAIN_APPROX_NONE);
     double maxArea = 0;
-    int lampCenterX = 0;
-    int lampCenterY = 0;
+    int x = 0;
+    int y = 0;
     for (size_t i = 0; i < cnts.size(); i++)
     {
         if (contourArea(cnts[i]) > maxArea){
             Moments mnts = moments(cnts[i]);
-            lampCenterX = mnts.m10 / mnts.m00;
-            lampCenterY = mnts.m01 / mnts.m00;
+            x = mnts.m10 / mnts.m00;
+            y = mnts.m01 / mnts.m00;
         }
     }
     // закрыл красную лампу 
-    circle(imgLamp, Point(lampCenterX, lampCenterY-10), 25, Scalar(0, 0, 0), 45);
+    circle(imgLamp, Point(x, y-10), 25, Scalar(0, 0, 0), 45);
 
     int low_H = 43;
 	int high_H = 93;
@@ -69,13 +67,13 @@ int main(int argc, char** argv){
 	int high_S = 255;
     int low_V = 151;
 	int high_V = 255;
-    cv::createTrackbar("low_H", "thimg", &low_H, 180);
-	cv::createTrackbar("high_H", "thimg", &high_H, 180);
-    cv::createTrackbar("low_S", "thimg", &low_S, 255);
-	cv::createTrackbar("high_S", "thimg", &high_S, 255);
-    cv::createTrackbar("low_V", "thimg", &low_V, 255);
-	cv::createTrackbar("high_V", "thimg", &high_V, 255);
-    Mat draw = img.clone();
+    cv::createTrackbar("low_H", "thres_image", &low_H, 180);
+	cv::createTrackbar("high_H", "thres_image", &high_H, 180);
+    cv::createTrackbar("low_S", "thres_image", &low_S, 255);
+	cv::createTrackbar("high_S", "thres_image", &high_S, 255);
+    cv::createTrackbar("low_V", "thres_image", &low_V, 255);
+	cv::createTrackbar("high_V", "thres_image", &high_V, 255);
+    Mat draw = image.clone();
     while (waitKey(5) != 'w')
     {
         Scalar red_low_0(0, 150, 80); 
@@ -104,7 +102,7 @@ int main(int argc, char** argv){
         find_robots(hsvImg, contours_red, red_low_0, red_high_0);
         find_robots(hsvImg, contours_red, red_low_1, red_high_1);
 
-        draw = img.clone();
+        draw = image.clone();
         vector<Point> greenRobotsCenters;
         for (size_t i = 0; i < contours_green.size(); i++)
         {
@@ -137,15 +135,15 @@ int main(int argc, char** argv){
 
 
 
-        circle(draw, Point(lampCenterX, lampCenterY), 3, Scalar(0, 0, 0), 3);
+        circle(draw, Point(x, y), 3, Scalar(0, 0, 0), 3);
     
         float minDistance = 0;
 
         Point closestGreen;
         for (size_t i = 0; i < greenRobotsCenters.size(); i++)
         {
-            float distance = sqrt((greenRobotsCenters[i].x - lampCenterX) * (greenRobotsCenters[i].x - lampCenterX) + 
-                                (greenRobotsCenters[i].y - lampCenterY) * (greenRobotsCenters[i].y - lampCenterY));
+            float distance = sqrt((greenRobotsCenters[i].x - x) * (greenRobotsCenters[i].x - x) + 
+                                (greenRobotsCenters[i].y - y) * (greenRobotsCenters[i].y - y));
             if ((i == 0) || (distance < minDistance)){
                 minDistance = distance;
                 closestGreen.x = greenRobotsCenters[i].x;
@@ -159,8 +157,8 @@ int main(int argc, char** argv){
         Point closestBlue;
         for (size_t i = 0; i < blueRobotsCenters.size(); i++)
         {
-            float distance = sqrt((blueRobotsCenters[i].x - lampCenterX) * (blueRobotsCenters[i].x - lampCenterX) + 
-                                (blueRobotsCenters[i].y - lampCenterY) * (blueRobotsCenters[i].y - lampCenterY));
+            float distance = sqrt((blueRobotsCenters[i].x - x) * (blueRobotsCenters[i].x - x) + 
+                                (blueRobotsCenters[i].y - y) * (blueRobotsCenters[i].y - y));
             if ((i == 0) || (distance < minDistance)){
                 minDistance = distance;
                 closestBlue.x = blueRobotsCenters[i].x;
@@ -173,8 +171,8 @@ int main(int argc, char** argv){
         Point closestRed;
         for (size_t i = 0; i < redRobotsCenters.size(); i++)
         {
-            float distance = sqrt((redRobotsCenters[i].x - lampCenterX) * (redRobotsCenters[i].x - lampCenterX) + 
-                                (redRobotsCenters[i].y - lampCenterY) * (redRobotsCenters[i].y - lampCenterY));
+            float distance = sqrt((redRobotsCenters[i].x - x) * (redRobotsCenters[i].x - x) + 
+                                (redRobotsCenters[i].y - y) * (redRobotsCenters[i].y - y));
             if ((i == 0) || (distance < minDistance)){
                 minDistance = distance;
                 closestRed.x = redRobotsCenters[i].x;
@@ -187,8 +185,4 @@ int main(int argc, char** argv){
     }
     
     
-    
-   
-
-    waitKey();
 }
