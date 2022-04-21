@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project( opencv_labs )
-set(OpenCV_DIR /home/pesta/Downloads/opencv3.4.1/build/)
-find_package(OpenCV REQUIRED PATHS "/home/pesta/Downloads/opencv3.4.1/build/")
+set(OpenCV_DIR /home/pesta/opencv3.4.1/build)
+find_package(OpenCV REQUIRED PATHS "/home/pesta/opencv3.4.1/build")
 
 add_executable( lab1_main lab1/src/lab1.cpp )
 add_executable( lab1_tank lab1/src/tank.cpp )

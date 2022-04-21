@@ -54,7 +54,7 @@ static bool readDetectorParameters(std::string filename, Ptr<aruco::DetectorPara
 }
 
 
-cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
+cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_7X7_250);
 Mat camMatrix, distCoeffs;
 
 // draw 2d cube projection
@@ -136,7 +136,7 @@ void ProcessShot(cv::Mat& input, cv::Mat& output)
 
 int main()
 {
-    std::string distortion_params = "../camparams.txt";
+    std::string distortion_params = "../calibration.xml";
     std::string detection_params = "../detector_params.yml";
 
     bool readOk = readCameraParameters(distortion_params, camMatrix, distCoeffs);
